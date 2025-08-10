@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>ランキング表示</title>
+  <title>CSVランキング表示</title>
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
   <style>
     body { font-family: sans-serif; padding: 20px; }
@@ -29,9 +29,9 @@
   <script>
     const table = $('#ranking-table').DataTable({
       columns: [
-        { title: '順位' },
-        { title: '管理No' },
-        { title: 'スコア' }
+        { data: '順位', title: '順位' },
+        { data: '管理No', title: '管理No' },
+        { data: 'スコア', title: 'スコア' }
       ]
     });
 
@@ -42,16 +42,12 @@
       Papa.parse(file, {
         header: true,
         skipEmptyLines: true,
-        transformHeader: header => header.trim(), // 空白除去（念のため）
+        transformHeader: h => h.trim(), // 空白除去（念のため）
         complete: function (results) {
-          table.clear(); // 既存データをクリア
+          table.clear();
 
           results.data.forEach(row => {
-            table.row.add([
-              row['順位'],
-              row['管理No'],
-              row['スコア']
-            ]);
+            table.row.add(row); // オブジェクト形式で渡す
           });
 
           table.draw();
