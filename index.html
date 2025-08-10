@@ -2,63 +2,57 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>ランキング表示</title>
+  <title>順位表 - Parklane Takasaki</title>
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <style>
     body { font-family: sans-serif; padding: 20px; }
-    #loadButton { margin-bottom: 20px; }
+    table { width: 100%; }
   </style>
 </head>
 <body>
 
-  <h1>ランキング表示</h1>
-  <button id="loadButton">CSVを読み込む</button>
-  <table id="ranking-table" class="display" style="width:100%"></table>
+<h2>ボウリング大会 順位表</h2>
+<p>管理Noで検索可能です。</p>
 
-  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<input type="file" id="upload-csv" accept=".csv"><br><br>
 
-  <script>
-    let table;
+<table id="ranking-table" class="display">
+  <thead>
+    <tr>
+      <th>順位</th>
+      <th>管理No</th>
+      <th>合計スコア</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
 
-    document.getElementById('loadButton').addEventListener('click', function () {
-      Papa.parse("https://yourusername.github.io/ranking0722/ranking.csv", {
-        download: true,
-        header: true,
-        skipEmptyLines: true,
-        transformHeader: h => h.trim().replace(/"/g, ''),
-        complete: function (results) {
-          const cleanData = results.data
-            .filter(row => row['順位'] !== undefined && row['管理No'] !== undefined)
-            .map(row => ({
-              '順位': row['順位'] || '',
-              '管理No': row['管理No'] || '',
-              'スコア': row['スコア'] || ''
-            }));
+<script>
+$(document).ready(function () {
+  const table = $('#ranking-table').DataTable();
 
-          if (table) {
-            table.clear().rows.add(cleanData).draw();
-          } else {
-            table = $('#ranking-table').DataTable({
-              data: cleanData,
-              columns: [
-                { data: '順位', title: '順位' },
-                { data: '管理No', title: '管理No' },
-                { data: 'スコア', title: 'スコア' }
-              ],
-              pageLength: 50,
-              lengthMenu: [50, 100, 500, 1000],
-              deferRender: true,
-              scrollY: '600px',
-              scrollCollapse: true,
-              scroller: true
-            });
-          }
-        }
-      });
+  $('#upload-csv').on('change', function (e) {
+    Papa.parse(e.target.files[0], {
+      header: true,
+      skipEmptyLines: true,
+      complete: function (results) {
+        table.clear();
+        results.data.forEach(row => {
+          table.row.add([
+            row['順位'],
+            row['管理No'],
+            row['合計スコア']
+          ]);
+        });
+        table.draw();
+      }
     });
-  </script>
+  });
+});
+</script>
 
 </body>
 </html>
