@@ -27,13 +27,7 @@
   <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <script>
-    const table = $('#ranking-table').DataTable({
-      columns: [
-        { data: '順位', title: '順位' },
-        { data: '管理No', title: '管理No' },
-        { data: 'スコア', title: 'スコア' }
-      ]
-    });
+    let table;
 
     document.getElementById('csvFileInput').addEventListener('change', function (e) {
       const file = e.target.files[0];
@@ -42,15 +36,26 @@
       Papa.parse(file, {
         header: true,
         skipEmptyLines: true,
-        transformHeader: h => h.trim(), // 空白除去（念のため）
+        transformHeader: h => h.trim(), // 空白除去
         complete: function (results) {
-          table.clear();
-
-          results.data.forEach(row => {
-            table.row.add(row); // オブジェクト形式で渡す
-          });
-
-          table.draw();
+          if (table) {
+            table.clear().rows.add(results.data).draw();
+          } else {
+            table = $('#ranking-table').DataTable({
+              data: results.data,
+              columns: [
+                { data: '順位', title: '順位' },
+                { data: '管理No', title: '管理No' },
+                { data: 'スコア', title: 'スコア' }
+              ],
+              pageLength: 50, // 初期表示件数
+              lengthMenu: [50, 100, 500, 1000], // 選択肢
+              deferRender: true, // パフォーマンス向上
+              scrollY: '600px',
+              scrollCollapse: true,
+              scroller: true
+            });
+          }
         }
       });
     });
