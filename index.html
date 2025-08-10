@@ -2,57 +2,52 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>順位表 - Parklane Takasaki</title>
+  <title>ランキング表示</title>
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <style>
     body { font-family: sans-serif; padding: 20px; }
-    table { width: 100%; }
+    #ranking-table { width: 100%; }
   </style>
 </head>
 <body>
+  <h1>CSVランキング表示</h1>
+  <input type="file" id="csvFileInput" accept=".csv">
+  <table id="ranking-table" class="display"></table>
 
-<h2>ボウリング大会 順位表</h2>
-<p>管理Noで検索可能です。</p>
-
-<input type="file" id="upload-csv" accept=".csv"><br><br>
-
-<table id="ranking-table" class="display">
-  <thead>
-    <tr>
-      <th>順位</th>
-      <th>管理No</th>
-      <th>合計スコア</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
-</table>
-
-<script>
-$(document).ready(function () {
-  const table = $('#ranking-table').DataTable();
-
-  $('#upload-csv').on('change', function (e) {
-    Papa.parse(e.target.files[0], {
-      header: true,
-      skipEmptyLines: true,
-      complete: function (results) {
-        table.clear();
-        results.data.forEach(row => {
-          table.row.add([
-            row['順位'],
-            row['管理No'],
-            row['合計スコア']
-          ]);
-        });
-        table.draw();
-      }
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <script>
+    const table = $('#ranking-table').DataTable({
+      columns: [
+        { title: '順位' },
+        { title: '管理No' },
+        { title: 'スコア' }
+      ]
     });
-  });
-});
-</script>
 
+    document.getElementById('csvFileInput').addEventListener('change', function (e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      Papa.parse(file, {
+        header: true,
+        skipEmptyLines: true,
+        complete: function (results) {
+          table.clear(); // 既存データをクリア
+
+          results.data.forEach(row => {
+            table.row.add([
+              row['順位'],
+              row['管理No'],
+              row['スコア']
+            ]);
+          });
+
+          table.draw();
+        }
+      });
+    });
+  </script>
 </body>
 </html>
