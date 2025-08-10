@@ -36,21 +36,30 @@
       Papa.parse(file, {
         header: true,
         skipEmptyLines: true,
-        transformHeader: h => h.trim(), // 空白除去
+        transformHeader: h => h.trim().replace(/"/g, ''), // 空白と引用符除去
         complete: function (results) {
+          // データ整形：空欄補完と必須項目チェック
+          const cleanData = results.data
+            .filter(row => row['順位'] !== undefined && row['管理No'] !== undefined)
+            .map(row => ({
+              '順位': row['順位'] || '',
+              '管理No': row['管理No'] || '',
+              'スコア': row['スコア'] || ''
+            }));
+
           if (table) {
-            table.clear().rows.add(results.data).draw();
+            table.clear().rows.add(cleanData).draw();
           } else {
             table = $('#ranking-table').DataTable({
-              data: results.data,
+              data: cleanData,
               columns: [
                 { data: '順位', title: '順位' },
                 { data: '管理No', title: '管理No' },
                 { data: 'スコア', title: 'スコア' }
               ],
-              pageLength: 50, // 初期表示件数
-              lengthMenu: [50, 100, 500, 1000], // 選択肢
-              deferRender: true, // パフォーマンス向上
+              pageLength: 50,
+              lengthMenu: [50, 100, 500, 1000],
+              deferRender: true,
               scrollY: '600px',
               scrollCollapse: true,
               scroller: true
