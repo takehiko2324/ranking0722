@@ -2,43 +2,33 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>CSVランキング表示</title>
+  <title>ランキング表示</title>
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
   <style>
     body { font-family: sans-serif; padding: 20px; }
-    #ranking-table { width: 100%; }
+    #loadButton { margin-bottom: 20px; }
   </style>
 </head>
 <body>
-  <h1>CSVランキング表示</h1>
-  <input type="file" id="csvFileInput" accept=".csv">
-  <table id="ranking-table" class="display">
-    <thead>
-      <tr>
-        <th>順位</th>
-        <th>管理No</th>
-        <th>スコア</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+
+  <h1>ランキング表示</h1>
+  <button id="loadButton">CSVを読み込む</button>
+  <table id="ranking-table" class="display" style="width:100%"></table>
 
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
   <script>
     let table;
 
-    document.getElementById('csvFileInput').addEventListener('change', function (e) {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      Papa.parse(file, {
+    document.getElementById('loadButton').addEventListener('click', function () {
+      Papa.parse("https://yourusername.github.io/ranking0722/ranking.csv", {
+        download: true,
         header: true,
         skipEmptyLines: true,
-        transformHeader: h => h.trim().replace(/"/g, ''), // 空白と引用符除去
+        transformHeader: h => h.trim().replace(/"/g, ''),
         complete: function (results) {
-          // データ整形：空欄補完と必須項目チェック
           const cleanData = results.data
             .filter(row => row['順位'] !== undefined && row['管理No'] !== undefined)
             .map(row => ({
@@ -69,5 +59,6 @@
       });
     });
   </script>
+
 </body>
 </html>
