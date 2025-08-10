@@ -12,7 +12,16 @@
 <body>
   <h1>CSVランキング表示</h1>
   <input type="file" id="csvFileInput" accept=".csv">
-  <table id="ranking-table" class="display"></table>
+  <table id="ranking-table" class="display">
+    <thead>
+      <tr>
+        <th>順位</th>
+        <th>管理No</th>
+        <th>スコア</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
@@ -33,6 +42,7 @@
       Papa.parse(file, {
         header: true,
         skipEmptyLines: true,
+        transformHeader: header => header.trim(), // 空白除去（念のため）
         complete: function (results) {
           table.clear(); // 既存データをクリア
 
