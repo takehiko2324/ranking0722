@@ -23,7 +23,7 @@
   <thead>
     <tr>
       <th>順位</th>
-      <th>AcCode</th>
+      <th>管理No</th>
       <th>合計スコア</th>
     </tr>
   </thead>
@@ -43,7 +43,7 @@ $(document).ready(function () {
         results.data.forEach(row => {
           table.row.add([
             row['順位'],
-            row['AcCode'],
+            row['管理No'],
             row['合計スコア']
           ]);
         });
@@ -56,5 +56,6 @@ $(document).ready(function () {
 
 </body>
 </html>
+
 
 
