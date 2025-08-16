@@ -21,7 +21,7 @@
   <thead>
     <tr>
       <th>順位</th>
-      <th>AcCode</th>
+      <th>管理No</th>
       <th>合計スコア</th>
     </tr>
   </thead>
@@ -39,7 +39,7 @@ $(document).ready(function () {
         data: results.data.filter(row => row["順位"] && row["管理No"] && row["合計スコア"]),
         columns: [
           { data: "順位" },
-          { data: "AcCode" },
+          { data: "管理No" },
           { data: "合計スコア" }
         ],
         language: {
@@ -55,5 +55,6 @@ $(document).ready(function () {
 </body>
 
 </html>
+
 
 
