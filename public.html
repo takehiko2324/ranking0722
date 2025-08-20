@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ランキング表</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 10px;
+      background-color: #f8f9fa;
+    }
+
+    #filter {
+      margin-bottom: 10px;
+    }
+
+    table.dataTable {
+      width: 100% !important;
+      border-collapse: collapse;
+    }
+
+    table.dataTable th, table.dataTable td {
+      padding: 6px;
+      font-size: 14px;
+      word-break: break-word;
+      white-space: normal;
+    }
+
+    .highlight-top3 { background-color: #ffe599; }
+    .highlight-500  { background-color: #c9daf8; }
+    .highlight-100  { background-color: #d9ead3; }
+    .highlight-622  { background-color: #f4cccc; }
+    .highlight-50   { background-color: #fce5cd; }
+  </style>
+</head>
+<body>
+
+  <label for="filter">賞別フィルター：</label>
+  <select id="filter">
+    <option value="">すべて表示</option>
+    <option value="highlight-top3">1,2,3位賞</option>
+    <option value="highlight-500">500飛び賞</option>
+    <option value="highlight-100">100飛び賞</option>
+    <option value="highlight-622">622賞</option>
+    <option value="highlight-50">50飛び賞</option>
+  </select>
+
+  <table id="rankingTable" class="display nowrap">
+    <thead>
+      <tr>
+        <th>順位</th>
+        <th>管理No</th>
+        <th>スコア</th> <!-- 表示名 -->
+      </tr>
+    </thead>
+  </table>
+
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <script>
+    function getHighlightClass(rank) {
+      rank = parseInt(rank, 10);
+      if ([1,2,3].includes(rank % 1000)) return 'highlight-top3';
+      if (rank % 500 === 0) return 'highlight-500';
+      if (rank % 100 === 0 && rank % 500 !== 0) return 'highlight-100';
+      if (rank % 1000 === 622) return 'highlight-622';
+      if (rank % 100 === 50) return 'highlight-50';
+      return '';
+    }
+
+    Papa.parse("ranking.csv", {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete: function(results) {
+        const rawData = results.data.filter(row => row["順位"] && row["管理No"] && row["合計スコア"]);
+        const enrichedData = rawData.map(row => {
+          const cls = getHighlightClass(row["順位"]);
+          return { ...row, _highlight: cls };
+        });
+
+        const table = $('#rankingTable').DataTable({
+          data: enrichedData,
+          columns: [
+            { data: "順位" },
+            { data: "管理No" },
+            { data: "合計スコア", title: "スコア" } // 表示名変更
+          ],
+          createdRow: function(row, data) {
+            if (data._highlight) $(row).addClass(data._highlight);
+          },
+          responsive: true,
+          scrollX: false,
+          language: {
+            url: "https://cdn.datatables.net/plug-ins/1.13.4/i18n/ja.json"
+          },
+          pageLength: 25
+        });
+
+        $('#filter').on('change', function() {
+          const selected = $(this).val();
+          table.rows().every(function() {
+            const data = this.data();
+            const match = !selected || data._highlight === selected;
+            this.visible(match);
+          });
+          table.draw();
+        });
+      }
+    });
+  </script>
+</body>
+</html>
