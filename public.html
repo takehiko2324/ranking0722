@@ -101,7 +101,7 @@
       <thead>
         <tr>
           <th>順位</th>
-          <th>管理No</th>
+          <th>AcCode</th>
           <th>スコア</th>
         </tr>
       </thead>
@@ -120,7 +120,7 @@
             data: results.data.filter(row => row["順位"] && row["管理No"] && row["合計スコア"]),
             columns: [
               { data: "順位" },
-              { data: "管理No" },
+              { data: "AcCode" },
               { data: "合計スコア" }
             ],
             language: {
@@ -137,4 +137,5 @@
 
 
 </html>
+
 
